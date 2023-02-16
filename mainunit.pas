@@ -39,11 +39,9 @@ type
     Splitter1: TSplitter;
     Timer1: TTimer;
 
-    procedure FormCreate(Sender: TObject);
     procedure OptionClick(Sender: TObject);
     procedure SpeedButtonCopyClick(Sender: TObject);
     procedure SpeedButtonDecryptClick(Sender: TObject);
-    //procedure RadioGroup1Click(Sender: TObject);
     procedure SpeedButtonEncryptClick(Sender: TObject);
     procedure SpeedButtonOpenFileClick(Sender: TObject);
     procedure SpeedButtonSaveToFileClick(Sender: TObject);
@@ -80,6 +78,8 @@ type
     function Decrypt(text : String; key : String) : String;
   end;
 
+  { Affine }
+
   Affine = class(Cipher)
   private
 
@@ -90,6 +90,8 @@ type
     function Decrypt(text : String; key : String) : String;
   end;
 
+  { Vigenere }
+
   Vigenere = class(Cipher)
   private
 
@@ -98,7 +100,9 @@ type
     Constructor Create;
     function Encrypt(text : String; key : String) : String;
     function Decrypt(text : String; key : String) : String;
-  end;
+  end;    
+
+  { FrequencyCryptanalysis }
 
   FrequencyCryptanalysis = class(Cipher)
   private
@@ -129,7 +133,6 @@ end;
 
 function Caesar.Encrypt(text : String; key : String) : String;
 var
-  i : Integer;
   c : Char;
   newC : String;
   sb : TStringBuilder;
@@ -146,7 +149,9 @@ begin
   end;
   sb:=TStringBuilder.Create();
   cleanText := StringReplace(text, LineEnding, '', [rfReplaceAll]);
-  cleanText := StringReplace(cleanText, ' ', '', [rfReplaceAll]);
+  cleanText := StringReplace(cleanText, ' ', '', [rfReplaceAll]);    
+  cleanText := StringReplace(cleanText, ',', '', [rfReplaceAll]);
+  cleanText := StringReplace(cleanText, '.', '', [rfReplaceAll]);
   cleanText := LowerCase(cleanText);
 
   for c in cleanText do
@@ -215,13 +220,14 @@ begin
   sb:=TStringBuilder.Create();
 
   cleanText := StringReplace(text, LineEnding, '', [rfReplaceAll]);
-  cleanText := StringReplace(cleanText, ' ', '', [rfReplaceAll]);
+  cleanText := StringReplace(cleanText, ' ', '', [rfReplaceAll]);   
+  cleanText := StringReplace(cleanText, ',', '', [rfReplaceAll]);
+  cleanText := StringReplace(cleanText, '.', '', [rfReplaceAll]);
   cleanText := LowerCase(cleanText);
   for c in cleanText do
   begin
     if alphabet.Contains(c) then  begin
       newC := alphabet[(alphabet.IndexOf(c) * a + b) mod 26 + 1] ;
-      //sb.append((alphabet.IndexOf(c) * a + b) mod 26)
     end
     else
       newC := c;    
@@ -239,15 +245,10 @@ var
   cleanText : String;
   newC : Char;
   aa : Integer;
-  //i : Integer;
 begin
   try
     a := StrToInt(Trim(key).Split([' ', ',', '|', ':', ';'])[0]);
     b := StrToInt(Trim(key).Split([' ', ',', '|', ':', ';'])[1]);
-    //if (a > 26) or (b > 26) then
-    //  Raise Exception.Create('q');
-    //if ((a <> 1) or (a <> 26)) and ((26 mod a) = 0) then
-    //  Raise Exception.Create('q');
   except
     ShowMessage('Incorrect key');
     Exit;
@@ -255,7 +256,9 @@ begin
   sb:=TStringBuilder.Create();
 
   cleanText := StringReplace(text, LineEnding, '', [rfReplaceAll]);
-  cleanText := StringReplace(cleanText, ' ', '', [rfReplaceAll]);
+  cleanText := StringReplace(cleanText, ' ', '', [rfReplaceAll]);  
+  cleanText := StringReplace(cleanText, ',', '', [rfReplaceAll]);
+  cleanText := StringReplace(cleanText, '.', '', [rfReplaceAll]);
   cleanText := LowerCase(cleanText);
 
   for aa := 0 to Pred(26) do
@@ -264,23 +267,11 @@ begin
       Break;
   end;
 
-  //Form1.Caption := IntToStr(aa);
 
   for c in cleanText do
   begin
     if alphabet.Contains(c) then  begin
       newC := alphabet[(aa * (alphabet.IndexOf(c) + 26 - b)) mod 26 + 1];
-      //Form1.Caption := IntToStr(aa) + IntToStr(alphabet.IndexOf(c)) + IntToStr(b) + ' ' + IntToStr((aa * (alphabet.IndexOf(c) + 26 - b)) mod 26);
-      //Form1.Caption := alphabet[0];
-      //Form1.Caption := IntToStr(aa * (Ord(c) + 26 - b) mod 26);
-      //try
-      //  newC := alphabet[((alphabet.IndexOf(c)-1 - b) div a) mod 26];  
-      //  //Form1.Caption := IntToStr(((alphabet.IndexOf(c) - b) div a) mod 26);
-      //except
-      //  ShowMessage('Incorrect key');
-      //  Exit;
-      //end;
-      ////sb.append((alphabet.IndexOf(c) * a + b) mod 26)
     end
     else
       newC := c;
@@ -330,24 +321,13 @@ begin
   for i := 1 to Pred(cleanText.Length + 1) do
   begin
     c := cleanText[i];
-    //Form1.Caption := c;
     if alphabet.Contains(c) then begin
       key_i := i mod cleanKey.Length; // индекс буквы в ключе | 0 = последний
       if key_i = 0 then
         key_c := cleanKey[cleanKey.Length]
       else
         key_c := cleanKey[key_i];
-      //Form1.Caption := IntToStr(alphabet.IndexOf('g'));
       newC := alphabet[(alphabet.IndexOf(key_c) + alphabet.IndexOf(c)) mod 26 + 1];
-      //sb.Append(key_c);
-      //sb.Append('_')                                                                                                      ;
-      //sb.Append(key_c)                        ;
-      //sb.Append('|')                                                                                                      ;
-      //sb.Append(c)                                                                                      ;
-      //sb.Append('|')                                                                                                      ;
-      //sb.Append((alphabet.IndexOf(key_c) + alphabet.IndexOf(c) + 1))  ;
-      //sb.Append('|')                                                                                                      ;
-      //sb.Append((alphabet.IndexOf(key_c) + alphabet.IndexOf(c) + 1) mod 27)
     end
 
     else
@@ -392,7 +372,6 @@ begin
   for i := 1 to Pred(cleanText.Length + 1) do
   begin
     c := cleanText[i];
-    //Form1.Caption := c;
     if alphabet.Contains(c) then begin
       key_i := i mod cleanKey.Length; // индекс буквы в ключе | 0 = последний
       if key_i = 0 then
@@ -404,17 +383,7 @@ begin
       if q < 0 then
         q := 26 + alphabet.IndexOf(c) - alphabet.IndexOf(key_c);
 
-      //Form1.Caption := IntToStr(alphabet.IndexOf('g'));
       newC := alphabet[q mod 26 + 1];
-      //sb.Append(key_c);
-      //sb.Append('_')                                                                                                      ;
-      //sb.Append(key_c)                        ;
-      //sb.Append('|')                                                                                                      ;
-      //sb.Append(c)                                                                                      ;
-      //sb.Append('|')                                                                                                      ;
-      //sb.Append((alphabet.IndexOf(key_c) + alphabet.IndexOf(c) + 1))  ;
-      //sb.Append('|')                                                                                                      ;
-      //sb.Append((alphabet.IndexOf(key_c) + alphabet.IndexOf(c) + 1) mod 27)
     end
 
     else
@@ -434,13 +403,8 @@ end;
 function FrequencyCryptanalysis.Encrypt(text : String; key : String) : String;
 var
   i : Integer;
-  c : Char;
-  newC : String;
   sb : TStringBuilder;
   cleanText : String;
-  cleanKey : String;
-  key_i : Integer;
-  key_c : Char;
   frequencies: array[1..27] of Float;
 begin
   cleanText := StringReplace(text, LineEnding, '', [rfReplaceAll]);
@@ -449,11 +413,17 @@ begin
   cleanText := StringReplace(cleanText, '.', '', [rfReplaceAll]);
   cleanText := LowerCase(cleanText);
 
+  if cleanText.Length = 0 then
+  begin
+    Result := '';
+    Exit;
+  end;
+
   sb := TStringBuilder.Create();
 
   for i := 1 to Pred(alphabet.Length + 1) do
   begin
-    frequencies[i] := (text.Length - (StringReplace(text, alphabet[i], '', [rfReplaceAll])).Length) / text.Length;
+    frequencies[i] := (cleanText.Length - (StringReplace(cleanText, alphabet[i], '', [rfReplaceAll])).Length) / cleanText.Length;
     if frequencies[i] <> 0 then
     begin
       sb.Append(alphabet[i]);
@@ -469,13 +439,6 @@ end;
 function FrequencyCryptanalysis.Decrypt(text : String; key : String) : String;
 begin
   Result := Encrypt(text, key)
-end;
-
-{ TForm1 }
-
-procedure TForm1.FormCreate(Sender: TObject);
-begin
-  //Form1.Caption := 'penis' + LineEnding + 'penis penis';
 end;
 
 procedure TForm1.OptionClick(Sender: TObject);
@@ -509,8 +472,7 @@ var
   c: Caesar; 
   a: Affine;
   v: Vigenere; 
-  f: FrequencyCryptanalysis;   
-  //Ciphers: array [0..4] of Cipher = (Caesar.Create as Cipher, Affine.Create as Cipher, Vigenere.Create as Cipher, FrequencyCryptanalysis.Create as Cipher);
+  f: FrequencyCryptanalysis;
 begin
   case Option.ItemIndex of
     0: MemoResult.Text := c.Decrypt(MemoOrigin.Text, EditKey.Text);
@@ -518,10 +480,7 @@ begin
     2: MemoResult.Text := v.Decrypt(MemoOrigin.Text, EditKey.Text);
     3: MemoResult.Text := f.Decrypt(MemoOrigin.Text, EditKey.Text);
   end;
-  //MemoResult.Text := Ciphers[Option.ItemIndex].Decrypt(MemoOrigin.Text, EditKey.Text);
 end;
-
-
 
 procedure TForm1.SpeedButtonEncryptClick(Sender: TObject);
 var
@@ -536,7 +495,6 @@ begin
     2: MemoResult.Text := v.Encrypt(MemoOrigin.Text, EditKey.Text);
     3: MemoResult.Text := f.Encrypt(MemoOrigin.Text, EditKey.Text);
   end;
-  //MemoResult.Text := Ciphers[Option.ItemIndex].Encrypt(MemoOrigin.Text, EditKey.Text);
 
 end;
 
